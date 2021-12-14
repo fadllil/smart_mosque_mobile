@@ -17,7 +17,7 @@ class _HomeJamaahState extends State<HomeJamaah> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this, initialIndex: widget.index??0);
+    _tabController = TabController(length: 3, vsync: this, initialIndex: widget.index??0);
   }
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,6 @@ class _HomeJamaahState extends State<HomeJamaah> with SingleTickerProviderStateM
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.info), label: 'Informasi'),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Masjid'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Pesan'),
           BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'User'),
         ],
       ),
@@ -46,7 +45,6 @@ class _HomeJamaahState extends State<HomeJamaah> with SingleTickerProviderStateM
 
           InformasiJamaah(tab: _tabController),
           MasjidJamaah(tab: _tabController,),
-          Center(child: Text('Pesan'),),
           ProfilJamaah(tab: _tabController),
         ],
       ),

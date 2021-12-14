@@ -15,12 +15,38 @@ class KegiatanCubit extends Cubit<KegiatanState> {
   KegiatanModel? model;
   late List<Result> data;
   String? id_masjid;
-  Future init() async {
+  Future proses() async {
     try{
       emit(KegiatanLoading());
       this.id_masjid = await locator<PreferencesHelper>().getValue('id_masjid');
       if(this.id_masjid != null){
-        model = await kegiatanService.getKegiatan(id_masjid ?? '');
+        model = await kegiatanService.getKegiatan(id_masjid!, 'Belum Terlaksana');
+      }
+      emit(KegiatanLoaded());
+    }catch (e){
+      emit(KegiatanFailure(e.toString()));
+    }
+  }
+
+  Future selesai() async {
+    try{
+      emit(KegiatanLoading());
+      this.id_masjid = await locator<PreferencesHelper>().getValue('id_masjid');
+      if(this.id_masjid != null){
+        model = await kegiatanService.getKegiatan(id_masjid!, 'Selesai');
+      }
+      emit(KegiatanLoaded());
+    }catch (e){
+      emit(KegiatanFailure(e.toString()));
+    }
+  }
+
+  Future batal() async {
+    try{
+      emit(KegiatanLoading());
+      this.id_masjid = await locator<PreferencesHelper>().getValue('id_masjid');
+      if(this.id_masjid != null){
+        model = await kegiatanService.getKegiatan(id_masjid!, 'Batal');
       }
       emit(KegiatanLoaded());
     }catch (e){

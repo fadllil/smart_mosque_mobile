@@ -6,8 +6,9 @@ import 'package:smart_mosque/service/api_interceptor.dart';
 @lazySingleton
 class HttpService {
   // String base = 'http://192.168.90.188:8000/api';
-  // String base = 'http://192.168.1.13:8000/api';
-  String base = 'http://192.168.57.188:8000/api';
+  // String base = 'http://192.168.1.19:8000/api';
+  String base = 'http://192.168.76.188:8000/api';
+  // String base = 'http://192.168.183.130:8000/api';
 
   Dio? dio = locator<ApiInterceptors>().dio;
 

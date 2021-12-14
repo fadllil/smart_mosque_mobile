@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:smart_mosque/view/components/option_with_search.dart';
 import 'package:smart_mosque/view/jamaah/detail_masjid/detail_jadwal_imam.dart';
 import 'package:smart_mosque/view/jamaah/detail_masjid/home_detail_masjid.dart';
 import 'package:smart_mosque/view/jamaah/home_jamaah.dart';
@@ -10,8 +11,12 @@ import 'package:smart_mosque/view/masjid/inventaris/inventaris.dart';
 import 'package:smart_mosque/view/masjid/jadwal_imam/detail_jadwal.dart';
 import 'package:smart_mosque/view/masjid/jadwal_imam/jadwal_imam.dart';
 import 'package:smart_mosque/view/masjid/jamaah.dart';
+import 'package:smart_mosque/view/masjid/kegiatan/detail/anggota.dart';
+import 'package:smart_mosque/view/masjid/kegiatan/detail/iuran.dart';
 import 'package:smart_mosque/view/masjid/kegiatan/kegiatan.dart';
+import 'package:smart_mosque/view/masjid/kegiatan/tambah_kegiatan.dart';
 import 'package:smart_mosque/view/masjid/keuangan/keuangan_index.dart';
+import 'package:smart_mosque/view/masjid/keuangan/tambah_pemasukan.dart';
 import 'package:smart_mosque/view/masjid/pengurus/tambah_pengurus.dart';
 import '../view/masjid/pengurus/pengurus.dart';
 import 'package:smart_mosque/view/splash_screen.dart';
@@ -27,6 +32,8 @@ import 'package:smart_mosque/view/splash_screen.dart';
     AutoRoute(page: JadwalImam, path: '/jadwal_imam'),
     AutoRoute(page: DetailImam, path: '/detail_imam'),
     AutoRoute(page: Kegiatan, path: '/kegiatan'),
+    AutoRoute(page: TambahKegiatan, path: '/tambah_kegiatan'),
+    AutoRoute(page: TambahPemasukan, path: '/tambah_pemasukan'),
     AutoRoute(page: Informasi, path: '/informasi'),
     AutoRoute(page: Inventaris, path: '/inventaris'),
     AutoRoute(page: KeuanganIndex, path: '/keuangan_index'),
@@ -34,6 +41,9 @@ import 'package:smart_mosque/view/splash_screen.dart';
     AutoRoute(page: HomeDetailMasjid, path: '/home_detail_masjid'),
     AutoRoute(page: DetailJadwalImam, path: '/detail_jadwal_imam'),
     AutoRoute(page: Detail, path: '/detail'),
+    AutoRoute(page: Anggota, path: '/anggota'),
+    AutoRoute(page: Iuran, path: '/iuran'),
+    AutoRoute(page: CustomOptionWithSearch,path: '/custom-option'),
   ],
 )
 class $AppRouter {}

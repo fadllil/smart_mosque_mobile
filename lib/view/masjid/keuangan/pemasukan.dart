@@ -87,21 +87,7 @@ class _PemasukanBodyState extends State<PemasukanBody>{
     return Scaffold(
         floatingActionButton: FloatingActionButton.extended(
           onPressed: (){
-            showModalBottomSheet(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
-                ),
-                backgroundColor: Colors.white,
-                isScrollControlled: true,
-                context: context,
-                builder: (context){
-                  return TambahPemasukan(c:context);
-                }
-            ).then((value) {
-              if(value!= null){
-                context.read<PemasukanCubit>().createPemasukan(value);
-              }
-            });
+            AutoRouter.of(context).push(TambahPemasukanRoute()).then((value) => context.read<PemasukanCubit>().init());
           },
           label: Text('Tambah'), icon: Icon(Icons.add), backgroundColor: kPrimaryColor,
         ),
@@ -165,86 +151,6 @@ class _PemasukanBodyState extends State<PemasukanBody>{
         ),
       )
     )
-    );
-  }
-}
-
-class TambahPemasukan extends StatefulWidget{
-  final BuildContext c;
-  const TambahPemasukan({Key? key, required this.c}) : super (key: key);
-
-  @override
-  _TambahPemasukanState createState() => _TambahPemasukanState();
-}
-
-class _TambahPemasukanState extends State<TambahPemasukan>{
-  GlobalKey<FormState> _form = GlobalKey();
-  TextEditingController nama = TextEditingController();
-  TextEditingController nominal = TextEditingController();
-  TextEditingController keterangan = TextEditingController();
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(20),
-      child: Form(
-        key: _form,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text("Tambah Pemasukan", style: TextStyle(fontSize: 18),),
-            SizedBox(height: 10,),
-            CustomForm(
-                label: "Nama",
-                child: TextFormField(
-                  keyboardType: TextInputType.text,
-                  controller: nama,
-                  validator: (value) => validateForm(value?.toString()?? '', label: 'Nama'),
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan nama',
-                  ),
-                )
-            ),
-            CustomForm(
-                label: "Nominal",
-                child: TextFormField(
-                  keyboardType: TextInputType.number,
-                  controller: nominal,
-                  validator: (value) => validateForm(value?.toString()?? '', label: 'Nominal'),
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan nama',
-                  ),
-                )
-            ),
-            CustomForm(
-                label: "Keterangan",
-                child: TextFormField(
-                  keyboardType: TextInputType.text,
-                  controller: keterangan,
-                  validator: (value) => validateForm(value?.toString()?? '', label: 'Keterangan'),
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan nama',
-                  ),
-                )
-            ),
-            SizedBox(height: 20,),
-            CustomButton(
-                label: 'Simpan',
-                onPressed: (){
-                  FocusScope.of(context).unfocus();
-                  if(_form.currentState!.validate()){
-                    Map data = {
-                      'nama' : nama.text,
-                      'nominal' : nominal.text,
-                      'keterangan' : keterangan.text,
-                    };
-                    Navigator.pop(context, data);
-                  }
-                },
-                color: bluePrimary),
-            SizedBox(height: MediaQuery.of(context).viewInsets.bottom,)
-          ],
-        ),
-      ),
     );
   }
 }

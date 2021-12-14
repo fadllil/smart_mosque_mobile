@@ -16,7 +16,7 @@ class _HomeMasjidState extends State<HomeMasjid> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this, initialIndex: widget.index??0);
+    _tabController = TabController(length: 2, vsync: this, initialIndex: widget.index??0);
   }
 
   @override
@@ -34,7 +34,6 @@ class _HomeMasjidState extends State<HomeMasjid> with SingleTickerProviderStateM
         currentIndex: _tabController.index,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Pesan'),
           BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'User'),
         ],
       ),
@@ -43,7 +42,6 @@ class _HomeMasjidState extends State<HomeMasjid> with SingleTickerProviderStateM
         controller: _tabController,
         children: [
           DashboardMasjid(tab: _tabController,),
-          Center(child: Text('Pesan'),),
           Profil(tab: _tabController),
         ],
       ),

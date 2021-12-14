@@ -5,6 +5,7 @@ import 'package:smart_mosque/blocs/masjid/dashboard/dashboard_masjid_cubit.dart'
 import 'package:smart_mosque/config/locator.dart';
 import 'package:smart_mosque/config/router.gr.dart';
 import 'package:smart_mosque/constants/themes.dart';
+import 'package:smart_mosque/models/jamaah_list_model.dart';
 import 'package:smart_mosque/utils/string_helper.dart';
 import 'package:smart_mosque/view/components/error_component.dart';
 import 'package:smart_mosque/view/components/heading_title.dart';
@@ -34,7 +35,7 @@ class _DashboardMasjidState extends State<DashboardMasjid>{
             }else if (state is DashboardMasjidLoading){
               return LoadingComp();
             }
-            return DashboardBody(tab: widget.tab, state: (state as DashboardMasjidLoaded));
+            return DashboardBody(tab: widget.tab, state: (state as DashboardMasjidLoaded), model: context.select((DashboardMasjidCubit cubit) => cubit.model),);
           },
         )
       ),
@@ -45,7 +46,8 @@ class _DashboardMasjidState extends State<DashboardMasjid>{
 class DashboardBody extends StatefulWidget{
   final DashboardMasjidLoaded state;
   final TabController tab;
-  const DashboardBody({Key? key, required this.state, required this.tab}) : super(key: key);
+  final JamaahListModel? model;
+  const DashboardBody({Key? key, required this.state, required this.tab, required this.model}) : super(key: key);
   
   @override
   _DashboardBodyState createState() => _DashboardBodyState();
@@ -186,42 +188,31 @@ class _DashboardBodyState extends State<DashboardBody>{
               SizedBox(
                 height: 10,
               ),
-              ListTile(
-                tileColor: Colors.orange,
-                title: Text('1 Pengiriman sedang dijalan',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
-                leading: CircleAvatar(
-                  radius: 20,
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.delivery_dining,color: kPrimaryColor),
-                ),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)
-                ),
-              ),
+
               HeadingTitle(
-                title: 'Pengeluaran',
+                title: 'Jamaah',
                 onTap: () {
                   print('oce');
                 },
               ),
               ListView.builder(
-                itemCount: 10,
+                itemCount: widget.model?.results?.length,
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                itemBuilder: (context,index)=>Column(
+                itemBuilder: (context, index)=>Column(
                   children: [
                     ListTile(
-                      title: Text('Es Batu'),
+                      title: Text(widget.model?.results?[index].user?.nama??''),
                       leading: CircleAvatar(
                         radius: 20,
-                        backgroundColor: kPrimaryColor,
-                        child: Icon(Icons.agriculture,color: Colors.white,),
+                        backgroundColor: bluePrimary,
+                        child: Icon(Icons.person, color: Colors.white,),
                       ),
-                      trailing: Text('-${valueRupiah(45000)}',style: TextStyle(color: Colors.green),),
+                      trailing: Text('${widget.model?.results?[index].jamaah!.alamat}'),
                     ),
                     Divider()
                   ],
-                ),
+                ) ,
               ),
             ],
           ),

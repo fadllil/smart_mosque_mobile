@@ -17,7 +17,7 @@ class KegiatanMasjidCubit extends Cubit<KegiatanMasjidState> {
   Future init(int id) async {
     try{
       emit(KegiatanMasjidLoading());
-      model = await kegiatanService.getKegiatan(id.toString());
+      model = await kegiatanService.getKegiatan(id.toString(), 'Belum Terlaksana');
       emit(KegiatanMasjidLoaded());
     }catch (e){
       emit(KegiatanMasjidFailure(e.toString()));
