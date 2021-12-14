@@ -1,7 +1,9 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_mosque/blocs/jamaah/masjid_jamaah/masjid_jamaah_cubit.dart';
 import 'package:smart_mosque/config/locator.dart';
+import 'package:smart_mosque/config/router.gr.dart';
 import 'package:smart_mosque/constants/themes.dart';
 import 'package:smart_mosque/models/masjid_list_model.dart';
 import 'package:smart_mosque/view/components/error_component.dart';
@@ -49,50 +51,86 @@ class DiikutiBody extends StatefulWidget{
 class _DiikutiBodyState extends State<DiikutiBody>{
   ScrollController _scrollController = ScrollController();
   GlobalKey<RefreshIndicatorState> _refresh = GlobalKey();
+  TextEditingController cari = TextEditingController();
+  late List<Result> data;
+
+  @override
+  initState(){
+    super.initState();
+    data = widget.model?.results??[];
+  }
 
   @override
   void dispose() {
     super.dispose();
     _scrollController.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: RefreshIndicator(
             key: _refresh,
-            onRefresh: ()=> context.read<MasjidJamaahCubit>().diikuti(),
-            child: (widget.model?.results?.isEmpty??true)?NoData(message: 'Data belum ada') : SingleChildScrollView(
+            onRefresh: ()=> context.read<MasjidJamaahCubit>().semua(),
+            child: SingleChildScrollView(
               controller: _scrollController..addListener(() {
 
               }),
               child: Container(
                 padding: EdgeInsets.all(10),
-                child: ListView.builder(
-                  itemCount: widget.model?.results?.length,
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: (context, index){
-                    return Column(
-                      children: [
-                        ListTile(
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(widget.model?.results?[index].nama??''),
-                              Divider(color: Colors.black,),
-                              Text(widget.model?.results?[index].alamat??'', style: TextStyle(fontSize: 14),),
-                            ],
-                          ),
-                          leading: CircleAvatar(
-                            radius: 20,
-                            backgroundColor: bluePrimary,
-                            child: Icon(Icons.home, color: Colors.white,),
-                          ),
-                        ),
-                        Divider(),
-                      ],
-                    );},
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: cari,
+                      onChanged: (value){
+                        data = widget.model?.results??[];
+                        data = data.where((element) => element.nama?.toLowerCase().contains(cari.text)??false).toList();
+                        setState(() {
+
+                        });
+                      },
+                      decoration:  InputDecoration(
+                          hintText: 'Cari Masjid',
+                          suffixIcon: IconButton(onPressed: (){
+                            FocusScope.of(context).unfocus();
+                            data = widget.model?.results??[];
+                            data = data.where((element) => element.nama?.toLowerCase().contains(cari.text)??false).toList();
+                            setState(() {
+
+                            });
+                          }, icon: const Icon(Icons.search))
+                      ),
+                    ),
+                    (data.isEmpty)?NoData(message: 'Data belum ada') : ListView.builder(
+                      itemCount: data.length,
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemBuilder: (context, index){
+                        return Column(
+                          children: [
+                            ListTile(
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(data[index].nama??''),
+                                  Divider(color: Colors.black,),
+                                  Text(data[index].alamat??'', style: TextStyle(fontSize: 14),),
+                                ],
+                              ),
+                              leading: CircleAvatar(
+                                radius: 20,
+                                backgroundColor: bluePrimary,
+                                child: Icon(Icons.home, color: Colors.white,),
+                              ),
+                              onTap: (){
+                                int? id = data[index].id;
+                                AutoRouter.of(context).push(HomeDetailMasjidRoute(id: id));
+                              },
+                            ),
+                            Divider(),
+                          ],
+                        );},
+                    ),
+                  ],
                 ),
               ),
             )

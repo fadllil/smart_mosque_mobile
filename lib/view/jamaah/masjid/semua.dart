@@ -51,6 +51,14 @@ class SemuaBody extends StatefulWidget{
 class _SemuaBodyState extends State<SemuaBody>{
   ScrollController _scrollController = ScrollController();
   GlobalKey<RefreshIndicatorState> _refresh = GlobalKey();
+  TextEditingController cari = TextEditingController();
+  late List<Result> data;
+
+  @override
+  initState(){
+    super.initState();
+    data = widget.model?.results??[];
+}
 
   @override
   void dispose() {
@@ -63,41 +71,66 @@ class _SemuaBodyState extends State<SemuaBody>{
         body: RefreshIndicator(
             key: _refresh,
             onRefresh: ()=> context.read<MasjidJamaahCubit>().semua(),
-            child: (widget.model?.results?.isEmpty??true)?NoData(message: 'Data belum ada') : SingleChildScrollView(
+            child: SingleChildScrollView(
               controller: _scrollController..addListener(() {
 
               }),
               child: Container(
                 padding: EdgeInsets.all(10),
-                child: ListView.builder(
-                  itemCount: widget.model?.results?.length,
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: (context, index){
-                    return Column(
-                      children: [
-                        ListTile(
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(widget.model?.results?[index].nama??''),
-                              Divider(color: Colors.black,),
-                              Text(widget.model?.results?[index].alamat??'', style: TextStyle(fontSize: 14),),
-                            ],
-                          ),
-                          leading: CircleAvatar(
-                            radius: 20,
-                            backgroundColor: bluePrimary,
-                            child: Icon(Icons.home, color: Colors.white,),
-                          ),
-                          onTap: (){
-                            int? id = widget.model?.results?[index].id;
-                            AutoRouter.of(context).push(HomeDetailMasjidRoute(id: id));
-                          },
-                        ),
-                        Divider(),
-                      ],
-                    );},
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: cari,
+                      onChanged: (value){
+                        data = widget.model?.results??[];
+                        data = data.where((element) => element.nama?.toLowerCase().contains(cari.text)??false).toList();
+                        setState(() {
+
+                        });
+                      },
+                      decoration:  InputDecoration(
+                          hintText: 'Cari Masjid',
+                          suffixIcon: IconButton(onPressed: (){
+                            FocusScope.of(context).unfocus();
+                            data = widget.model?.results??[];
+                            data = data.where((element) => element.nama?.toLowerCase().contains(cari.text)??false).toList();
+                            setState(() {
+
+                            });
+                          }, icon: const Icon(Icons.search))
+                      ),
+                    ),
+                    (data.isEmpty)?NoData(message: 'Data belum ada') : ListView.builder(
+                      itemCount: data.length,
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemBuilder: (context, index){
+                        return Column(
+                          children: [
+                            ListTile(
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(data[index].nama??''),
+                                  Divider(color: Colors.black,),
+                                  Text(data[index].alamat??'', style: TextStyle(fontSize: 14),),
+                                ],
+                              ),
+                              leading: CircleAvatar(
+                                radius: 20,
+                                backgroundColor: bluePrimary,
+                                child: Icon(Icons.home, color: Colors.white,),
+                              ),
+                              onTap: (){
+                                int? id = data[index].id;
+                                AutoRouter.of(context).push(HomeDetailMasjidRoute(id: id));
+                              },
+                            ),
+                            Divider(),
+                          ],
+                        );},
+                    ),
+                  ],
                 ),
               ),
             )

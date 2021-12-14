@@ -52,6 +52,15 @@ class JamaahBody extends StatefulWidget{
 class _JamaahBodyState extends State<JamaahBody>{
   ScrollController _scrollController = ScrollController();
   GlobalKey<RefreshIndicatorState> _refresh = GlobalKey();
+  TextEditingController cari = TextEditingController();
+  late List<Result> data;
+
+  @override
+  void initState() {
+    super.initState();
+    data = widget.model?.results??[];
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -63,30 +72,55 @@ class _JamaahBodyState extends State<JamaahBody>{
       body: RefreshIndicator(
         key: _refresh,
         onRefresh: ()=>context.read<JamaahCubit>().init(),
-        child: (widget.model?.results?.isEmpty??true)?NoData(message: 'Data belum ada') : SingleChildScrollView(
+        child: SingleChildScrollView(
           controller: _scrollController..addListener(() {
 
           }),
           child: Container(
-            padding: EdgeInsets.all(10),
-            child: ListView.builder(
-              itemCount: widget.model?.results?.length,
-              physics: NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: (context, index)=>Column(
-                children: [
-                  ListTile(
-                    title: Text(widget.model?.results?[index].user?.nama??''),
-                    leading: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: bluePrimary,
-                      child: Icon(Icons.person, color: Colors.white,),
-                    ),
-                    trailing: Text('${widget.model?.results?[index].jamaah!.alamat}'),
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: cari,
+                  onChanged: (value){
+                    data = widget.model?.results??[];
+                    data = data.where((element) => element.user?.nama?.toLowerCase().contains(cari.text)??false).toList();
+                    setState(() {
+
+                    });
+                  },
+                  decoration:  InputDecoration(
+                    hintText: 'Cari Jamaah',
+                    suffixIcon: IconButton(onPressed: (){
+                      FocusScope.of(context).unfocus();
+                      data = widget.model?.results??[];
+                      data = data.where((element) => element.user?.nama?.toLowerCase().contains(cari.text)??false).toList();
+                      setState(() {
+
+                      });
+                    }, icon: const Icon(Icons.search))
                   ),
-                  Divider()
-                ],
-              ) ,
+                ),
+                (data.isEmpty)?const NoData(message: 'Data belum ada') : ListView.builder(
+                  itemCount: data.length,
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index)=>Column(
+                    children: [
+                      ListTile(
+                        title: Text(data[index].user?.nama??''),
+                        leading: const CircleAvatar(
+                          radius: 20,
+                          backgroundColor: bluePrimary,
+                          child: Icon(Icons.person, color: Colors.white,),
+                        ),
+                        trailing: Text('${data[index].jamaah!.alamat}'),
+                      ),
+                      const Divider()
+                    ],
+                  ) ,
+                ),
+              ],
             ),
           ),
         ),

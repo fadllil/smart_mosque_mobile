@@ -54,6 +54,13 @@ class BatalBody extends StatefulWidget{
 class _BatalBodyState extends State<BatalBody>{
   ScrollController _scrollController = ScrollController();
   GlobalKey<RefreshIndicatorState> _refresh = GlobalKey();
+  TextEditingController cari = TextEditingController();
+  late List<Result> data;
+  @override
+  initState(){
+    super.initState();
+    data = widget.model?.results??[];
+  }
 
   @override
   void dispose() {
@@ -66,144 +73,169 @@ class _BatalBodyState extends State<BatalBody>{
         body: RefreshIndicator(
           key: _refresh,
           onRefresh: ()=>context.read<KegiatanCubit>().batal(),
-          child: (widget.model?.results?.isEmpty??true)?NoData(message: 'Data belum ada') : SingleChildScrollView(
+          child: SingleChildScrollView(
             controller: _scrollController..addListener(() {
 
             }),
             child: Container(
               padding: EdgeInsets.all(10),
-              child: ListView.builder(
-                itemCount: widget.model?.results?.length,
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemBuilder: (context, index){
-                  DateTime? now = widget.model?.results?[index].tanggal;
-                  return Column(
-                    children: [
-                      InkWell(
-                        onTap: () {
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: cari,
+                    onChanged: (value){
+                      data = widget.model?.results??[];
+                      data = data.where((element) => element.nama?.toLowerCase().contains(cari.text)??false).toList();
+                      setState(() {
 
-                        },
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Container(
-                            padding: EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: CircleAvatar(
-                                    radius: 20,
-                                    backgroundColor: kPrimaryColor,
-                                    child: Icon(
-                                      Icons.perm_device_information,
-                                      color: Colors.white,
+                      });
+                    },
+                    decoration:  InputDecoration(
+                        hintText: 'Cari Kegiatan',
+                        suffixIcon: IconButton(onPressed: (){
+                          FocusScope.of(context).unfocus();
+                          data = widget.model?.results??[];
+                          data = data.where((element) => element.nama?.toLowerCase().contains(cari.text)??false).toList();
+                          setState(() {
+
+                          });
+                        }, icon: const Icon(Icons.search))
+                    ),
+                  ),
+                  (data.isEmpty)?NoData(message: 'Data belum ada') : ListView.builder(
+                    itemCount: data.length,
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index){
+                      DateTime? now = data[index].tanggal;
+                      return Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+
+                            },
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Container(
+                                padding: EdgeInsets.all(10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: CircleAvatar(
+                                        radius: 20,
+                                        backgroundColor: kPrimaryColor,
+                                        child: Icon(
+                                          Icons.perm_device_information,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                Spacer(),
-                                Expanded(
-                                  flex: 8,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    Spacer(),
+                                    Expanded(
+                                      flex: 8,
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(widget.model?.results ? [index]
-                                              .nama ?? '',
-                                            style: TextStyle(fontSize: 18),),
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text('${widget.model?.results?[index].waktu}'),
-                                              Text('${convertDateTime(now!)}'),
+                                              Text(data[index]
+                                                  .nama ?? '',
+                                                style: TextStyle(fontSize: 18),),
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text('${data[index].waktu}'),
+                                                  Text('${convertDateTime(now!)}'),
+                                                ],
+                                              ),
                                             ],
                                           ),
+                                          Divider(),
+                                          Text(data[index].jenis ?? ''),
+                                          Row(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: [
+                                              IconButton(icon: Icon(Icons.edit, color: bluePrimary,), onPressed: (){
+                                                showModalBottomSheet(
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
+                                                    ),
+                                                    backgroundColor: Colors.white,
+                                                    isScrollControlled: true,
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return EditKegiatan(c:context, model: widget.model, index:index);
+                                                    }
+                                                ).then((value){
+                                                  if (value != null){
+                                                    context.read<KegiatanCubit>().updateKegiatan(value);
+                                                  }
+                                                });
+                                              },
+                                              ),
+                                              IconButton(icon: Icon(Icons.delete, color: Colors.red,), onPressed: (){
+                                                int? id = data[index].id;
+                                                showModalBottomSheet(
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
+                                                    ),
+                                                    backgroundColor: Colors.white,
+                                                    isScrollControlled: true,
+                                                    context: context,
+                                                    builder: (c) => Container(
+                                                      padding: EdgeInsets.all(20),
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: [
+                                                          Text('Apakah anda ingin menghapus data?', style: TextStyle(fontSize: 18),),
+                                                          SizedBox(height: 20,),
+                                                          CustomButton(
+                                                              label: 'Hapus',
+                                                              onPressed: (){
+                                                                FocusScope.of(context).unfocus();
+                                                                String? _id = id.toString();
+                                                                context.read<KegiatanCubit>().deleteKegiatan(_id);
+                                                                Navigator.pop(context);
+                                                              },
+                                                              color: kPrimaryColor)
+                                                        ],
+                                                      ),
+                                                    )
+                                                );
+                                              },),
+                                              (data[index].anggota?.isEmpty == false) ? IconButton(
+                                                  onPressed: (){
+                                                    int? id = widget.model?.results?[index].id;
+                                                    AutoRouter.of(context).push(AnggotaRoute(id: id!));
+                                                  },
+                                                  icon: Icon(Icons.people, color: bluePrimary,)
+                                              ) : SizedBox(),
+                                              (data[index].iuran?.isEmpty == false) ? IconButton(
+                                                  onPressed: (){
+                                                    int? id = data[index].id;
+                                                    AutoRouter.of(context).push(IuranRoute(id: id!));
+                                                  },
+                                                  icon: Icon(Icons.money, color: Colors.green,)
+                                              ) : SizedBox(),
+                                            ],
+                                          )
                                         ],
                                       ),
-                                      Divider(),
-                                      Text(widget.model?.results?[index].jenis ?? ''),
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          IconButton(icon: Icon(Icons.edit, color: bluePrimary,), onPressed: (){
-                                            showModalBottomSheet(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
-                                                ),
-                                                backgroundColor: Colors.white,
-                                                isScrollControlled: true,
-                                                context: context,
-                                                builder: (context) {
-                                                  return EditKegiatan(c:context, model: widget.model, index:index);
-                                                }
-                                            ).then((value){
-                                              if (value != null){
-                                                context.read<KegiatanCubit>().updateKegiatan(value);
-                                              }
-                                            });
-                                          },
-                                          ),
-                                          IconButton(icon: Icon(Icons.delete, color: Colors.red,), onPressed: (){
-                                            int? id = widget.model?.results?[index].id;
-                                            showModalBottomSheet(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
-                                                ),
-                                                backgroundColor: Colors.white,
-                                                isScrollControlled: true,
-                                                context: context,
-                                                builder: (c) => Container(
-                                                  padding: EdgeInsets.all(20),
-                                                  child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      Text('Apakah anda ingin menghapus data?', style: TextStyle(fontSize: 18),),
-                                                      SizedBox(height: 20,),
-                                                      CustomButton(
-                                                          label: 'Hapus',
-                                                          onPressed: (){
-                                                            FocusScope.of(context).unfocus();
-                                                            String? _id = id.toString();
-                                                            context.read<KegiatanCubit>().deleteKegiatan(_id);
-                                                            Navigator.pop(context);
-                                                          },
-                                                          color: kPrimaryColor)
-                                                    ],
-                                                  ),
-                                                )
-                                            );
-                                          },),
-                                          (widget.model?.results?[index].anggota?.isEmpty == false) ? IconButton(
-                                              onPressed: (){
-                                                int? id = widget.model?.results?[index].id;
-                                                AutoRouter.of(context).push(AnggotaRoute(id: id!));
-                                              },
-                                              icon: Icon(Icons.people, color: bluePrimary,)
-                                          ) : SizedBox(),
-                                          (widget.model?.results?[index].iuran?.isEmpty == false) ? IconButton(
-                                              onPressed: (){
-                                                int? id = widget.model?.results?[index].id;
-                                                AutoRouter.of(context).push(IuranRoute(id: id!));
-                                              },
-                                              icon: Icon(Icons.money, color: Colors.green,)
-                                          ) : SizedBox(),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
+                                    )
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  );},
+                        ],
+                      );},
+                  ),
+                ],
               ),
             ),
           ),
